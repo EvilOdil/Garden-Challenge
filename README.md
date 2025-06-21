@@ -1,4 +1,4 @@
-##**How to Setup**##
+## **How to Setup** ##
 - Download the codebase as a zip file.
 - Extract the files in to a folder
 - Open the main.py
