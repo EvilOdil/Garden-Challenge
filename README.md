@@ -1,14 +1,14 @@
 ##**How to Setup**##
-1.Download the codebase as a zip file.
-2.Extract the files in to a folder
-3.Open the main.py
-4.Install pygame 
+- Download the codebase as a zip file.
+- Extract the files in to a folder
+- Open the main.py
+- Install pygame 
     ```python
     pip install pygame
     
     ```
-5.Run the code and check if it is working
-6. Update the play_area function in main.py to protect the plants.
+- Run the code and check if it is working
+- Update the play_area function in main.py to protect the plants.
 
 
 
