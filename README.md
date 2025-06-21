@@ -1,3 +1,17 @@
+##**How to Setup**##
+1.Download the codebase as a zip file.
+2.Extract the files in to a folder
+3.Open the main.py
+4.Install pygame 
+    ```python
+    pip install pygame
+    
+    ```
+5.Run the code and check if it is working
+6. Update the play_area function in main.py to protect the plants.
+
+
+
 Here’s a **list of things students can do in the `play_area` function** using the `garden_manager`. These actions allow for plant and pest management, experimentation. Use your coding knowledeg to write an effective play_area function to grow and protect the plantation.
 
 ---
