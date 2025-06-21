@@ -1,4 +1,5 @@
 import random
+import time  # <-- Add this import
 from seed import Seed
 from score import ScoreManager
 from pests import Pest
@@ -12,9 +13,10 @@ class GardenManager:
         self.seeds = []
         self.eaten_plants = 0
         self.score_manager = ScoreManager()
-        self.pests = []  # <-- Add this line
-        self.growth_rate = 0.3  # Default growth rate
-        self.max_plant_height = 30  # Default max height
+        self.pests = []
+        self.growth_rate = 0.3
+        self.max_plant_height = 30
+        self._seed_plant_times = []  # <-- Track seed plant times
 
     def generate_terrain(self):
         base_y = self.HEIGHT - self.GROUND_HEIGHT
@@ -24,10 +26,26 @@ class GardenManager:
         self.seeds.append(seed)
 
     def plant_seed(self, x=None, y=50):
-        """Plant a new seed at (x, y). If x is None, choose a random x."""
+        """Plant a new seed at (x, y). If x is None, choose a random x.
+        Limit to 5 seeds per second. Destroy 1 plant if exceeded."""
+        now = time.time()
+        # Remove timestamps older than 1 second
+        self._seed_plant_times = [t for t in self._seed_plant_times if now - t < 1]
+        if len(self._seed_plant_times) >= 5:
+            print("Seed planting rate limit reached (5 per second). Destroying 1 plant!")
+            self.animate_destroy_plants(1)  # Only destroy 1 plant
+            return  # Do not plant more than 5 seeds per second
+        self._seed_plant_times.append(now)
         if x is None:
             x = random.randint(20, self.WIDTH - 20)
         self.add_seed(Seed(x, y))
+
+    def animate_destroy_plants(self, count):
+        """Mark up to 'count' plants for destruction animation."""
+        destroyable = [s for s in self.seeds if not getattr(s, 'destroying', False) and not s.dead]
+        for seed in destroyable[:count]:
+            seed.destroying = True
+            seed.destroy_timer = 30  # frames for animation (adjust as needed)
 
     def set_growth_rate(self, rate, max_height = 30):
         """Set the growth rate for all plants."""
@@ -99,6 +117,18 @@ class GardenManager:
         # Actually remove dead plants from the list
         self.seeds = [s for s in self.seeds if not s.dead]
 
+        # Animate destroying plants
+        for seed in self.seeds:
+            if getattr(seed, 'destroying', False):
+                seed.destroy_timer -= 1
+                # Optional: animate (e.g., shrink plant_height)
+                seed.plant_height = max(0, seed.plant_height - (seed.plant_height / max(1, seed.destroy_timer)))
+                if seed.destroy_timer <= 0:
+                    seed.dead = True
+
+        # Actually remove dead plants from the list
+        self.seeds = [s for s in self.seeds if not s.dead]
+
         # Plants: skip growth if frozen
         for seed in self.seeds:
             x_index = int(seed.x)
@@ -126,7 +156,7 @@ class GardenManager:
         grown = [s for s in self.seeds if s.landed and not s.dead]
         if not grown:
             return
-        max_attack = max(1, len(grown) // 2)
+        max_attack = max(1, int(len(grown) * 1))  # Ensure integer
         num_attacked = random.randint(1, max_attack)
         victims = random.sample(grown, num_attacked)
 
